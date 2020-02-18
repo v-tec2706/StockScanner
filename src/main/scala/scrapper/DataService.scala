@@ -1,7 +1,7 @@
 package scrapper
 
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.{SaveMode, SparkSession}
+import org.apache.spark.sql._
 import org.apache.spark.{SparkConf, SparkContext}
 
 import scala.reflect.ClassTag
@@ -31,22 +31,42 @@ object DataService {
 
 
 class DataService(var sparkContext: SparkContext) {
-  def load[T:ClassTag](data: List[T]): RDD[T] = {
+
+  val spark = SparkSession
+    .builder
+    .getOrCreate()
+
+  import spark.implicits._
+
+  def load[T: ClassTag](data: List[T]): RDD[T] = {
     val sc = DataService.getContext()
     sc.parallelize(data.toSeq)
   }
 
-  def save(data: RDD[Company], outPath: String, columnNames: String*): Unit = {
-    val spark = SparkSession
-      .builder
-      .getOrCreate()
+  def partitionBy(data: DataFrameWriter[Row], columnName: String): DataFrameWriter[Row] = {
+    data.partitionBy(columnName)
+  }
 
+  def toDataFrame(data: RDD[Company], columnNames: String*): DataFrame = {
+    data.toDF(columnNames: _*).coalesce(1)
+  }
+
+  def addColumnExtractingName(data: DataFrame): DataFrame = {
     import org.apache.spark.sql.functions._
-    import spark.implicits._
 
-    data.toDF(columnNames: _*)
-      .withColumn("companyNameSymbol", split($"name", "")(0))
-      .write.partitionBy("companyNameSymbol").mode(SaveMode.Overwrite).csv(outPath)
+    data.withColumn("companyNameSymbol", split($"name", "")(0))
+  }
+
+  def saveInFilesByNames(data: DataFrame, outputPath: String): Unit = {
+    val extendedData = addColumnExtractingName(data)
+    val partitionedData = partitionBy(extendedData.write, "companyNameSymbol")
+    save(partitionedData, outputPath)
+  }
+
+  def save(data: DataFrameWriter[Row], outputPath: String): Unit = {
+    data
+      .mode(SaveMode.Overwrite)
+      .csv(outputPath)
   }
 }
 

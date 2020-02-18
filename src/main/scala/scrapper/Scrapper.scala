@@ -46,4 +46,8 @@ class Scrapper {
       case _ => fullList
     }
   }
+
+  def filterByCompanyName(companies: List[Company], companiesToExtract: List[String]): List[Company] = {
+    for (company <- companies if companiesToExtract.contains(company.name)) yield company
+  }
 }

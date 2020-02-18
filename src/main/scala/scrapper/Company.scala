@@ -1,7 +1,7 @@
 package scrapper
 
 import org.htmlcleaner.TagNode
-import scrapper.StringUtil.stringToFloat
+import utils.StringUtil._
 
 object Company {
   def convertToCompany(name: TagNode,
@@ -19,7 +19,7 @@ object Company {
       stringToFloat(change.getAllChildren.get(0).toString),
       stringToFloat(percentageChange.getAllChildren.get(0).toString.filterNot(x => x == '%')),
       transactionNumber.getAllChildren.get(0).toString,
-      volume.getAllChildren.get(0).toString,
+      stringToFloat(removeLiterals(volume.getAllChildren.get(0).toString, "&nbsp;")),
       stringToFloat(openingPrice.getAllChildren.get(0).toString),
       stringToFloat(max.getAllChildren.get(0).toString))
   }
@@ -30,7 +30,7 @@ case class Company(name: String,
                    change: Float,
                    percentageChange: Float,
                    transactionNumber: String,
-                   volume: String,
+                   volume: Float,
                    openingPrice: Float,
                    max: Float) {
   override def toString(): String = {

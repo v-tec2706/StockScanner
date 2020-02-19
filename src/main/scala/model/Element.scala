@@ -1,3 +1,3 @@
-package domain
+package model
 
 abstract class Element()

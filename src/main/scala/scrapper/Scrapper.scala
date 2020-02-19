@@ -2,26 +2,31 @@ package scrapper
 
 import java.net.URL
 
-import domain.{Company, Index}
+import model.{Company, Element, Index}
 import net.ruippeixotog.scalascraper.browser.{Browser, JsoupBrowser}
 import org.apache.spark.rdd.RDD
 import org.htmlcleaner.{CleanerProperties, HtmlCleaner}
-import scrapper.parser.IndexParser
+import scrapper.parser.{ElementType, _}
 
 class Scrapper {
   val browser: Browser = JsoupBrowser()
   val dataLoader = new DataService(DataService.getContext())
 
-  def getDocuments(path: String): List[Index] = {
+  def getDocuments(elementType: ElementType.Value, path: String): List[Element] = {
     val cleanerProperties = new CleanerProperties()
     val scrappedData = new HtmlCleaner(cleanerProperties).clean(new URL(path))
-    //    val filteredValues = CompanyParser.filterParsedRecords(scrappedData).toList
-    //    CompanyParser.companyMapping(List(), filteredValues).filter(x => x.isDefined).map(x => x.get)
-    val filteredValues = IndexParser.filterParsedRecords(scrappedData).toList
-    IndexParser.indexMapping(List(), filteredValues).filter(x => x.isDefined).map(x => x.get)
+    val filteredValues = Parser.filterParsedRecords(elementType, scrappedData).toList
+    Parser.doMapping(elementType, filteredValues)
   }
 
-  def convertToRDD(companies: List[Company]): RDD[Company] = {
+  def convertToRDD(element: List[Element]): RDD[_ >: Company with Index <: Element] = {
+    element match {
+      case a: List[Company] => convertCompanyToRDD(a)
+      case b: List[Index] => convertIndexToRDD(b)
+    }
+  }
+
+  def convertCompanyToRDD(companies: List[Company]): RDD[Company] = {
     dataLoader.load(companies)
   }
 

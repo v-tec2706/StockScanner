@@ -1,4 +1,4 @@
-package domain
+package model
 
 import org.htmlcleaner.TagNode
 import scrapper.parser.IndexParser
@@ -14,7 +14,7 @@ case class Index(
                   min: Float,
                   volume: Float
                 ) extends Element {
-  override def toString(): String = {
+  override def toString: String = {
     s"""|  Name: $name,
         |  rate: $rate, change: $percentageChange,  opening price: $openingPrice, max price: $max
         |""".stripMargin
@@ -23,7 +23,7 @@ case class Index(
 
 object Index {
   def convertToIndex(elements: List[TagNode]): Option[Index] = {
-    if (elements.length != IndexParser.IndexDataBatchSize) None
+    if (elements.length != IndexParser.batchSize) None
     else Some(Index(
       elements.head.getAttributeByName("title"),
       stringToFloat(removeLiterals(elements(1).getAllChildren.get(0).toString, "&nbsp;")),

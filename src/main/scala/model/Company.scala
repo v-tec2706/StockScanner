@@ -1,4 +1,4 @@
-package domain
+package model
 
 import org.htmlcleaner.TagNode
 import utils.StringUtil._
@@ -28,7 +28,7 @@ case class Company(name: String,
                    volume: Float,
                    openingPrice: Float,
                    max: Float) extends Element {
-  override def toString(): String = {
+  override def toString: String = {
     s"""|  Name: $name,
         |  rate: $rate, change: $percentageChange, transactions: $transactionNumber, opening price: $openingPrice, max price: $max
         |""".stripMargin

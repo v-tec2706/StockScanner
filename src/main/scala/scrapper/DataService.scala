@@ -1,6 +1,6 @@
 package scrapper
 
-import domain.{Company, Index}
+import model.{Company, Element, Index}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.{SparkConf, SparkContext}
@@ -46,6 +46,14 @@ class DataService(var sparkContext: SparkContext) {
 
   def partitionBy(data: DataFrameWriter[Row], columnName: String): DataFrameWriter[Row] = {
     data.partitionBy(columnName)
+  }
+
+
+  def toDataFrame(element: RDD[Element], columnNames: String*): DataFrame = {
+    element match {
+      case a: RDD[Company] => companyToDataFrame(a, columnNames: _*)
+      case b: RDD[Index] => indexToDataFrame(b, columnNames: _*)
+    }
   }
 
   def companyToDataFrame(data: RDD[Company], columnNames: String*): DataFrame = {

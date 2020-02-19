@@ -1,5 +1,6 @@
 package scrapper
 
+import domain.{Company, Index}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.{SparkConf, SparkContext}
@@ -32,7 +33,7 @@ object DataService {
 
 class DataService(var sparkContext: SparkContext) {
 
-  val spark = SparkSession
+  val spark: SparkSession = SparkSession
     .builder
     .getOrCreate()
 
@@ -40,14 +41,18 @@ class DataService(var sparkContext: SparkContext) {
 
   def load[T: ClassTag](data: List[T]): RDD[T] = {
     val sc = DataService.getContext()
-    sc.parallelize(data.toSeq)
+    sc.parallelize(data)
   }
 
   def partitionBy(data: DataFrameWriter[Row], columnName: String): DataFrameWriter[Row] = {
     data.partitionBy(columnName)
   }
 
-  def toDataFrame(data: RDD[Company], columnNames: String*): DataFrame = {
+  def companyToDataFrame(data: RDD[Company], columnNames: String*): DataFrame = {
+    data.toDF(columnNames: _*).coalesce(1)
+  }
+
+  def indexToDataFrame(data: RDD[Index], columnNames: String*): DataFrame = {
     data.toDF(columnNames: _*).coalesce(1)
   }
 

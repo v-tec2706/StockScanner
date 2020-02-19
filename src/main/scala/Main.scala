@@ -1,4 +1,4 @@
-import scrapper.{Company, Configuration, DataService, Scrapper}
+import scrapper.{Configuration, DataService, Scrapper}
 
 object Main {
 
@@ -6,17 +6,21 @@ object Main {
 
     val letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     val scrapper = new Scrapper
-    var fullCompaniesList: List[Company] = Nil
+    //    var fullCompaniesList: List[Company] = Nil
 
-    for (letter <- letters) {
-      fullCompaniesList = fullCompaniesList.:::(scrapper.getDocuments(Configuration.pathToScrap + letter))
-    }
+    //    for (letter <- letters) {
+    //      fullCompaniesList = fullCompaniesList.:::(scrapper.getDocuments(Configuration.pathToScrap + letter))
+    //    }
 
-    fullCompaniesList = scrapper.filterByCompanyName(fullCompaniesList, Configuration.companiesToBeExtracted)
+    val fullCompaniesList = scrapper.getDocuments(Configuration.pathToScrap)
+    //    val fullCompaniesListFiltered = scrapper.filterByCompanyName(fullCompaniesList, Configuration.companiesToBeExtracted)
 
-    val companies = scrapper.convertToRDD(fullCompaniesList)
+    //    val companies = scrapper.convertToRDD(fullCompaniesListFiltered)
+    val companies = scrapper.convertIndexToRDD(fullCompaniesList)
     val dataService = new DataService(DataService.getContext())
-    val resultAsDF = dataService.toDataFrame(companies, Configuration.columnNames: _*)
+    val resultAsDF = dataService.indexToDataFrame(companies, Configuration.columnNames: _*)
     dataService.saveInFilesByNames(resultAsDF, Configuration.outputPath)
   }
+
+
 }

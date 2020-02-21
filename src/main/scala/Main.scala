@@ -1,19 +1,19 @@
-import model.Index
+import model.{Element, Index}
 import scrapper.parser.ElementType
 import scrapper.{Configuration, DataService, Scrapper}
 
 object Main {
 
-  implicit val elementType: ElementType.Value = ElementType.INDEX
+  implicit val elementType: ElementType.Value = ElementType.COMPANY
 
   def main(args: Array[String]): Unit = {
     val letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     val scrapper = new Scrapper
-    //    var fullCompaniesList: List[Company] = Nil
-    //    for (letter <- letters) {
-    //      fullCompaniesList = fullCompaniesList.:::(scrapper.getDocuments(Configuration.pathToScrap + letter))
-    //    }
-    val fullCompaniesList = scrapper.getDocuments(Configuration.pathToScrap)
+    var fullCompaniesList: List[Element] = Nil
+    for (letter <- letters) {
+      fullCompaniesList = fullCompaniesList.:::(scrapper.getDocuments(Configuration.pathToScrap + letter))
+    }
+    //    val fullCompaniesList = scrapper.getDocuments(Configuration.pathToScrap)
     //val fullCompaniesListFiltered = scrapper.filterByCompanyName(fullCompaniesList, Configuration.companiesToBeExtracted)
     //val companies = scrapper.convertToRDD(fullCompaniesListFiltered)
     val companies = scrapper.convertToRDD(fullCompaniesList.asInstanceOf[List[Index]])

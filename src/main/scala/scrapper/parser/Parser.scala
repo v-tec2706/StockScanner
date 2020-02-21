@@ -1,6 +1,6 @@
 package scrapper.parser
 
-import model.{Element, Index}
+import model.Element
 import org.htmlcleaner.TagNode
 
 trait Parser {
@@ -10,6 +10,8 @@ trait Parser {
 
   def recordsPredicate(tagNode: TagNode): Boolean
 
+  def convert(list: List[TagNode]): Option[Element]
+
   def parse(fullList: List[Option[Element]], list: List[TagNode]): List[Option[Element]] = {
     list match {
       case Nil => fullList
@@ -17,7 +19,7 @@ trait Parser {
         val processedBatch = a.take(batchSize)
         val namesExtracted = processedBatch.map(x => x.getName)
         val newList: List[Option[Element]] = if (dataPattern.zip(namesExtracted).forall(x => x._1 == x._2)) {
-          fullList.::(Index.convertToIndex(processedBatch))
+          fullList.::(convert(processedBatch))
         } else {
           fullList
         }

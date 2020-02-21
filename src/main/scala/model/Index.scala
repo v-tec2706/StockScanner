@@ -22,6 +22,7 @@ case class Index(
 }
 
 object Index {
+
   def convertToIndex(elements: List[TagNode]): Option[Index] = {
     if (elements.length != IndexParser.batchSize) None
     else Some(Index(

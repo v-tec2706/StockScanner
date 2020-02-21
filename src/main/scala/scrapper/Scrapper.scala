@@ -10,19 +10,19 @@ import scrapper.parser.{ElementType, _}
 
 class Scrapper {
   val browser: Browser = JsoupBrowser()
-  val dataLoader = new DataService(DataService.getContext())
+  val dataLoader = new DataService(DataService.getContext)
 
-  def getDocuments(elementType: ElementType.Value, path: String): List[Element] = {
+  def getDocuments(path: String)(implicit elementType: ElementType.Value): List[Element] = {
     val cleanerProperties = new CleanerProperties()
     val scrappedData = new HtmlCleaner(cleanerProperties).clean(new URL(path))
     val filteredValues = Parser.filterParsedRecords(elementType, scrappedData).toList
     Parser.doMapping(elementType, filteredValues)
   }
 
-  def convertToRDD(element: List[Element]): RDD[_ >: Company with Index <: Element] = {
-    element match {
-      case a: List[Company] => convertCompanyToRDD(a)
-      case b: List[Index] => convertIndexToRDD(b)
+  def convertToRDD(element: List[Element])(implicit elementType: ElementType.Value): RDD[_ >: Company with Index <: Element] = {
+    elementType match {
+      case ElementType.COMPANY => convertCompanyToRDD(element.asInstanceOf[List[Company]])
+      case ElementType.INDEX => convertIndexToRDD(element.asInstanceOf[List[Index]])
     }
   }
 

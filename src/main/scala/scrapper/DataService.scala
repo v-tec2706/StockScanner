@@ -1,9 +1,10 @@
 package scrapper
 
-import model.{Company, Element, Index}
+import model.{Company, Index}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql._
 import org.apache.spark.{SparkConf, SparkContext}
+import scrapper.parser.ElementType
 
 import scala.reflect.ClassTag
 
@@ -21,7 +22,7 @@ object DataService {
     sparkContext = Some(new SparkContext(sparkConfiguration))
   }
 
-  def getContext(): SparkContext = {
+  def getContext: SparkContext = {
     if (sparkContext.isDefined) sparkContext.get
     else {
       initializeSparkContext(2, "myApp")
@@ -39,8 +40,8 @@ class DataService(var sparkContext: SparkContext) {
 
   import spark.implicits._
 
-  def load[T: ClassTag](data: List[T]): RDD[T] = {
-    val sc = DataService.getContext()
+  def load[A: ClassTag](data: List[A]): RDD[A] = {
+    val sc = DataService.getContext
     sc.parallelize(data)
   }
 
@@ -49,10 +50,12 @@ class DataService(var sparkContext: SparkContext) {
   }
 
 
-  def toDataFrame(element: RDD[Element], columnNames: String*): DataFrame = {
-    element match {
-      case a: RDD[Company] => companyToDataFrame(a, columnNames: _*)
-      case b: RDD[Index] => indexToDataFrame(b, columnNames: _*)
+  def toDataFrame[A](element: RDD[A], columnNames: String*)(implicit elementType: ElementType.Value): DataFrame = {
+    elementType match {
+      case ElementType.COMPANY =>
+        companyToDataFrame(element.asInstanceOf[RDD[Company]], columnNames: _*)
+      case ElementType.INDEX =>
+        indexToDataFrame(element.asInstanceOf[RDD[Index]], columnNames: _*)
     }
   }
 
@@ -79,7 +82,7 @@ class DataService(var sparkContext: SparkContext) {
   def save(data: DataFrameWriter[Row], outputPath: String): Unit = {
     data
       .mode(SaveMode.Overwrite)
-      .csv(outputPath)
+      .json(outputPath)
   }
 }
 

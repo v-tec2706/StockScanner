@@ -1,4 +1,4 @@
-package scrapper
+package data
 
 import model.{Company, Index}
 import org.apache.spark.rdd.RDD
@@ -8,9 +8,17 @@ import scrapper.parser.ElementType
 
 import scala.reflect.ClassTag
 
-object DataService {
+object Writer {
 
   var sparkContext: Option[SparkContext] = None
+
+  def getContext: SparkContext = {
+    if (sparkContext.isDefined) sparkContext.get
+    else {
+      initializeSparkContext(2, "myApp")
+      sparkContext.get
+    }
+  }
 
   def initializeSparkContext(numberOfThreads: Int, name: String): Unit = {
     val sparkConfiguration = new SparkConf()
@@ -21,19 +29,10 @@ object DataService {
 
     sparkContext = Some(new SparkContext(sparkConfiguration))
   }
-
-  def getContext: SparkContext = {
-    if (sparkContext.isDefined) sparkContext.get
-    else {
-      initializeSparkContext(2, "myApp")
-      sparkContext.get
-    }
-  }
 }
 
 
-class DataService(var sparkContext: SparkContext) {
-
+class Writer {
   val spark: SparkSession = SparkSession
     .builder
     .getOrCreate()
@@ -41,7 +40,7 @@ class DataService(var sparkContext: SparkContext) {
   import spark.implicits._
 
   def load[A: ClassTag](data: List[A]): RDD[A] = {
-    val sc = DataService.getContext
+    val sc = SparkContextLoader.getContext
     sc.parallelize(data)
   }
 

@@ -2,6 +2,7 @@ package scrapper
 
 import java.net.URL
 
+import data.Writer
 import model.{Company, Element, Index}
 import net.ruippeixotog.scalascraper.browser.{Browser, JsoupBrowser}
 import org.apache.spark.rdd.RDD
@@ -10,7 +11,7 @@ import scrapper.parser.{ElementType, _}
 
 class Scrapper {
   val browser: Browser = JsoupBrowser()
-  val dataLoader = new DataService(DataService.getContext)
+  val dataLoader = new Writer
 
   def getDocuments(path: String)(implicit elementType: ElementType.Value): List[Element] = {
     val cleanerProperties = new CleanerProperties()

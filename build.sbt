@@ -9,6 +9,8 @@ libraryDependencies += "net.sourceforge.htmlcleaner" % "htmlcleaner" % "2.6.1"
 libraryDependencies += "org.apache.kafka" %% "kafka" % "2.1.0"
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.4.4"
 libraryDependencies += "org.apache.spark" %% "spark-core" % "2.4.4"
+libraryDependencies += "com.fasterxml.jackson.module" % "jackson-module-scala" % "2.10.0"
+libraryDependencies += "com.fasterxml.jackson.core" % "jackson-databind" % "2.10.0"
 
 dependencyOverrides ++= {
   Seq(

@@ -1,8 +1,8 @@
-package scrapper
+package configuration
 
-import utils.PathGenerator._
+import utils.PathGenerator.{pathWithDate, pathWithHour}
 
-object Configuration {
+object AppConfiguration {
   def columnNames = List("name", "rate", "change", "percentageRate", "transactionNumber", "volume", "openingPrice", "max")
 
   def outputPath: String = "." + pathWithDate("output") + pathWithHour()

@@ -28,7 +28,7 @@ object DateGenerator {
 
   def hour: String = {
     val date = Calendar.getInstance().getTime
-    val format = new SimpleDateFormat("hh:mm")
+    val format = new SimpleDateFormat("hh-mm")
     format.format(date)
   }
 }
